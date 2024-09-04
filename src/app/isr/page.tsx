@@ -1,19 +1,24 @@
-export const revalidate = 10; // revalidate this page every 10 seconds
+import { I_Todo } from "../ssr/page";
 
-async function getCurrentTime() {
-  // This could be an api request
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return new Date().toLocaleTimeString();
+export const revalidate = 20; // revalidates every 20 seconds
+
+async function getRandomTodo() {
+  const id = Math.floor(Math.random() * 200) + 1;
+
+  const res = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`);
+  const todo: I_Todo = await res.json();
+
+  return todo;
 }
 
-export default async function Home() {
-  const time = await getCurrentTime();
+export default async function ISRPage() {
+  const todo: I_Todo = await getRandomTodo();
 
   return (
-    <div>
-      <h1>ISR Example</h1>
-      <p>Current time: {time}</p>
-      <p>This page revalidates every 20 seconds</p>
+    <div key={todo.id}>
+      <h1>ID: {todo.id}</h1>
+      <h2>{todo.title}</h2>
+      <p>{todo.completed ? 'Completed' : 'Not completed'}</p>
     </div>
   );
 }
